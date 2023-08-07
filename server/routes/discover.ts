@@ -75,6 +75,79 @@ const QueryFilterOptions = z.object({
 
 export type FilterOptions = z.infer<typeof QueryFilterOptions>;
 
+discoverRoutes.get('/added', async (req, res, next) => {
+  const tmdb = createTmdbWithRegionLanguage(req.user);
+
+  try {
+    const query = QueryFilterOptions.parse(req.query);
+    const keywords = query.keywords;
+    const data = await tmdb.getDiscoverMovies({
+      page: Number(query.page),
+      sortBy: query.sortBy as SortOptions,
+      language: req.locale ?? query.language,
+      originalLanguage: query.language,
+      genre: query.genre,
+      studio: query.studio,
+      primaryReleaseDateLte: query.primaryReleaseDateLte
+        ? new Date(query.primaryReleaseDateLte).toISOString().split('T')[0]
+        : undefined,
+      primaryReleaseDateGte: query.primaryReleaseDateGte
+        ? new Date(query.primaryReleaseDateGte).toISOString().split('T')[0]
+        : undefined,
+      keywords,
+      withRuntimeGte: query.withRuntimeGte,
+      withRuntimeLte: query.withRuntimeLte,
+      voteAverageGte: query.voteAverageGte,
+      voteAverageLte: query.voteAverageLte,
+      voteCountGte: query.voteCountGte,
+      voteCountLte: query.voteCountLte,
+      watchProviders: query.watchProviders,
+      watchRegion: query.watchRegion,
+    });
+
+    const media = await Media.getRelatedMedia(
+      req.user,
+      data.results.map((result) => result.id)
+    );
+
+    let keywordData: TmdbKeyword[] = [];
+    if (keywords) {
+      const splitKeywords = keywords.split(',');
+
+      keywordData = await Promise.all(
+        splitKeywords.map(async (keywordId) => {
+          return await tmdb.getKeywordDetails({ keywordId: Number(keywordId) });
+        })
+      );
+    }
+
+    return res.status(200).json({
+      page: data.page,
+      totalPages: data.total_pages,
+      totalResults: data.total_results,
+      keywords: keywordData,
+      results: data.results.map((result) =>
+        mapMovieResult(
+          result,
+          media.find(
+            (req) =>
+              req.tmdbId === result.id && req.mediaType === MediaType.MOVIE
+          )
+        )
+      ),
+    });
+  } catch (e) {
+    logger.debug('Something went wrong retrieving popular movies', {
+      label: 'API',
+      errorMessage: e.message,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve popular movies.',
+    });
+  }
+});
+
 discoverRoutes.get('/movies', async (req, res, next) => {
   const tmdb = createTmdbWithRegionLanguage(req.user);
 

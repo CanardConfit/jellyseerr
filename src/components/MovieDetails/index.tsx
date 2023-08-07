@@ -427,7 +427,6 @@ const MovieDetails = ({ movie }: MovieDetailsProps) => {
             ) && (
               <Tooltip content={intl.formatMessage(messages.reportissue)}>
                 <Button
-                  buttonType="warning"
                   onClick={() => setShowIssueModal(true)}
                   className="ml-2 first:ml-0"
                 >

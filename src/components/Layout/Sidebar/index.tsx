@@ -26,6 +26,7 @@ export const menuMessages = defineMessages({
   issues: 'Issues',
   users: 'Users',
   settings: 'Settings',
+  added: 'Added',
 });
 
 interface SidebarProps {
@@ -51,6 +52,12 @@ const SidebarLinks: SidebarLinkProps[] = [
     svgIcon: <SparklesIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/(discover\/?)?$/,
   },
+  /*{
+    href: '/added',
+    messagesKey: 'added',
+    svgIcon: <BookOpenIcon className="mr-3 h-6 w-6" />,
+    activeRegExp: /^\/added/,
+  },*/
   {
     href: '/discover/movies',
     messagesKey: 'browsemovies',
@@ -151,7 +158,7 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
                     <div className="flex flex-shrink-0 items-center px-2">
                       <span className="px-4 text-xl text-gray-50">
                         <a href="/">
-                          <img src="/logo_full.svg" alt="Logo" />
+                          <img src="/logo_full.png" alt="Logo" />
                         </a>
                       </span>
                     </div>
@@ -225,7 +232,7 @@ const Sidebar = ({ open, setClosed }: SidebarProps) => {
               <div className="flex flex-shrink-0 items-center">
                 <span className="px-4 text-2xl text-gray-50">
                   <a href="/">
-                    <img src="/logo_full.svg" alt="Logo" />
+                    <img src="/logo_full.png" alt="Logo" />
                   </a>
                 </span>
               </div>
